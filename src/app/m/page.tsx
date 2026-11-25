@@ -15,6 +15,7 @@ import { payflow } from "@/lib/lazy-payflow";
 import { useWallet } from "@/lib/wallet";
 
 import { metaFor, useTokenMetas } from "@/lib/token";
+import { checkChargeLimit } from "@/lib/subscribe-confirmation";
 import {
   AddressLink,
   Empty,
@@ -128,16 +129,16 @@ function MerchantCatalogue() {
       setError(tr("Switch your wallet to the correct network first."));
       return;
     }
+    const cap = checkChargeLimit(maxCharges[plan.id]);
+    if (!cap.ok) {
+      document.getElementById(`limit-${plan.id}`)?.focus();
+      return;
+    }
     setBusy(plan.id);
     setError(null);
     setDone(null);
     try {
-      const raw = maxCharges[plan.id]?.trim();
-      const limit = raw ? Number(raw) : 0;
-      if (!Number.isInteger(limit) || limit < 0) {
-        throw new Error(tr("Charge limit must be a whole number, or 0 for open-ended."));
-      }
-      const hash = await payflow.subscribe(address, signXdr, plan.id, limit);
+      const hash = await payflow.subscribe(address, signXdr, plan.id, cap.limit);
       setDone(hash);
       await load();
     } catch (err) {
@@ -184,6 +185,7 @@ function MerchantCatalogue() {
         <div className="grid gap-4 sm:grid-cols-2">
           {active.map((plan) => {
             const meta = metaFor(metas, plan.token);
+            const cap = checkChargeLimit(maxCharges[plan.id]);
             return (
               <Panel
                 key={plan.id}
@@ -220,7 +222,14 @@ function MerchantCatalogue() {
                       onChange={(e) =>
                         setMaxCharges((m) => ({ ...m, [plan.id]: e.target.value }))
                       }
+                      aria-invalid={!cap.ok || undefined}
+                      aria-describedby={!cap.ok ? `limit-error-${plan.id}` : undefined}
                     />
+                    {!cap.ok && (
+                      <p id={`limit-error-${plan.id}`} role="alert" className="mt-1 text-sm text-danger">
+                        {translateMessage(cap.message)}
+                      </p>
+                    )}
                   </div>
 
                   <button
