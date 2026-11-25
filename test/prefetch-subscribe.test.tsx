@@ -69,6 +69,7 @@ vi.mock("@/lib/config", () => ({
     readSource: "GAP6QFLXQD73URCC3EXU2WOQHIAREPCGMSIMKF5PFLLI5TR6HTMNDTIE",
     networkPresets: [],
   },
+  explorerBase: "https://stellar.expert/explorer/testnet",
 }));
 
 const SAMPLE_PLAN: ApiPlan = {
@@ -78,14 +79,15 @@ const SAMPLE_PLAN: ApiPlan = {
   token: "C456",
   amount: "10000000",
   period: 2592000,
-  active: true,
+  active: 1,
+  ledger: 0,
 };
 
 describe("Plan card prefetch (#327)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     search = "";
-    apiMock.plans.mockResolvedValue([SAMPLE_PLAN]);
+    apiMock.plans.mockResolvedValue({ plans: [SAMPLE_PLAN] });
     chainMock.chainPlansOf.mockResolvedValue([SAMPLE_PLAN]);
     chainMock.chainPlans.mockResolvedValue([SAMPLE_PLAN]);
   });
@@ -107,7 +109,7 @@ describe("Plan card prefetch (#327)", () => {
     expect(routerMock.prefetch).toHaveBeenCalledWith("/subscribe/?plan=42");
 
     routerMock.prefetch.mockClear();
-    fireEvent.focusCapture(panel!);
+    fireEvent.focus(panel!);
     expect(routerMock.prefetch).toHaveBeenCalledWith("/subscribe");
     expect(routerMock.prefetch).toHaveBeenCalledWith("/subscribe/?plan=42");
   });
@@ -124,7 +126,7 @@ describe("Plan card prefetch (#327)", () => {
     expect(routerMock.prefetch).toHaveBeenCalledWith("/subscribe/?plan=42");
 
     routerMock.prefetch.mockClear();
-    fireEvent.focusCapture(panel!);
+    fireEvent.focus(panel!);
     expect(routerMock.prefetch).toHaveBeenCalledWith("/subscribe/?plan=42");
   });
 });

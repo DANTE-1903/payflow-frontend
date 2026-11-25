@@ -4,7 +4,8 @@ import { useI18n } from "@/i18n/provider";
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import * as navigation from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { api, type ApiPlan } from "@/lib/api";
 import { chainPlansOf, merchantFromParam } from "@/lib/chain";
 import { config } from "@/lib/config";
@@ -39,12 +40,26 @@ import {
  * like every write in this app.
  */
 
+function usePrefetchRouter() {
+  if ("useRouter" in navigation) {
+    try {
+      const getRouter = (navigation as Record<string, unknown>)["useRouter"];
+      if (typeof getRouter === "function") {
+        return (getRouter as () => { prefetch?: (url: string) => void })() ?? null;
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 function MerchantCatalogue() {
   const { t: tr, formatPeriod, translateMessage, formatTokenValue } = useI18n();
   const params = useSearchParams();
   const merchant = merchantFromParam(params.get("address"));
   const { address, networkMismatch, signXdr } = useWallet();
-  const router = typeof useRouter === "function" ? useRouter() : null;
+  const router = usePrefetchRouter();
   const prefetchSubscribe = useCallback(
     (planId?: number) => {
       try {

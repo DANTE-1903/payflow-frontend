@@ -9,6 +9,7 @@ import {
   type CohortRetentionData,
 } from "@/lib/cohort-retention";
 import { Empty, Notice, Panel, SkeletonRows } from "./ui";
+import { useI18n } from "@/i18n/provider";
 
 type CohortRetentionState =
   | { status: "loading" }
@@ -22,8 +23,8 @@ interface CohortRetentionTableProps {
 }
 
 export function CohortRetentionTable({
-  // i18n hook
- merchant, apiConfigured }: CohortRetentionTableProps) {
+  merchant, apiConfigured }: CohortRetentionTableProps) {
+  const { t: tr, formatNumber } = useI18n();
   const [state, setState] = useState<CohortRetentionState>({ status: "loading" });
 
   useEffect(() => {

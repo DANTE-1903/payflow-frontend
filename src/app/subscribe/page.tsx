@@ -5,7 +5,8 @@ import type { Translation } from "@/i18n/translate";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import * as navigation from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { api, type ApiPlan } from "@/lib/api";
 import { chainPlans } from "@/lib/chain";
 import { config } from "@/lib/config";
@@ -155,9 +156,23 @@ function ComparisonTable({
   );
 }
 
+function usePrefetchRouter() {
+  if ("useRouter" in navigation) {
+    try {
+      const getRouter = (navigation as Record<string, unknown>)["useRouter"];
+      if (typeof getRouter === "function") {
+        return (getRouter as () => { prefetch?: (url: string) => void })() ?? null;
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 function SubscribeInner() {
   const { t: tr, formatPeriod, formatDate, formatWhen, translateMessage, formatTrialLength, trialBadge, formatTokenValue, formatUsdString, formatNumber, formatAmount, formatFeeBps } = useI18n();
-  const router = typeof useRouter === "function" ? useRouter() : null;
+  const router = usePrefetchRouter();
   const prefetchPlan = useCallback(
     (planId: number) => {
       try {

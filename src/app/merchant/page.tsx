@@ -167,6 +167,7 @@ function ProfilePanel({
 
   const nameCheck = checkProfileName(name);
   const urlCheck = checkProfileUrl(url);
+  const { t: tr } = useI18n();
   const usable = nameCheck.ok && urlCheck.ok;
 
   if (!supported) {
