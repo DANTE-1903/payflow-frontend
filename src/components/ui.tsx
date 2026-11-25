@@ -36,6 +36,9 @@ export function Panel({
     <section
       className="panel"
       id={id}
+      onMouseEnter={onMouseEnter}
+      onFocus={onFocus}
+      onFocusCapture={onFocusCapture}
       // Naming the section after its heading lets screen-reader users jump
       // between the panels of a long page (a plan card, a form, a table)
       // instead of hearing one undifferentiated run of content.
