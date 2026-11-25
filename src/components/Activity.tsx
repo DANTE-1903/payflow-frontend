@@ -10,6 +10,7 @@ import {
 import { config } from "@/lib/config";
 import { formatAmount, type TokenMeta } from "@/lib/format";
 import { useWallet } from "@/lib/wallet";
+import { useI18n } from "@/i18n/provider";
 import { Empty, Notice, Panel, SkeletonRows } from "@/components/ui";
 
 const SEEN_PREFIX = "payflow.activity.seen.";
@@ -164,6 +165,7 @@ async function loadActivity(address: string): Promise<ActivityLoad | null> {
 }
 
 export function Activity() {
+  const { t: tr } = useI18n();
   const { address } = useWallet();
   const [items, setItems] = useState<ActivityItem[]>([]);
   const [itemsAddress, setItemsAddress] = useState<string | null>(null);
@@ -241,8 +243,8 @@ export function Activity() {
 
   return (
     <Panel
-      title="Activity"
-      subtitle={unread.length ? `${unread.length} unread` : "Recent mandate activity"}
+      title={tr("Activity")}
+      subtitle={unread.length ? tr("{0} unread", { "0": unread.length }) : tr("Recent mandate activity")}
       actions={
         <div className="flex flex-wrap gap-2">
           <button
@@ -263,25 +265,25 @@ export function Activity() {
         </div>
       }
     >
-      {loading ? <SkeletonRows rows={3} label="Loading activity" /> : null}
+      {loading ? <SkeletonRows rows={3} label={tr("Loading activity")} /> : null}
       {!loading && partial ? (
         <Notice tone="info">
-          Some activity could not be loaded. The list below may be incomplete.
+          {tr("Some activity could not be loaded. The list below may be incomplete.")}
         </Notice>
       ) : null}
       {!loading && failed ? (
         <div className="space-y-3">
-          <Notice tone="error">Activity is unavailable right now. Try again later.</Notice>
+          <Notice tone="error">{tr("Activity is unavailable right now. Try again later.")}</Notice>
           <button type="button" className="btn-ghost" onClick={() => void refresh(address)}>
             Try again
           </button>
         </div>
       ) : null}
       {!loading && !failed && !partial && visibleItems.length === 0 ? (
-        <Empty>No activity yet.</Empty>
+        <Empty>{tr("No activity yet.")}</Empty>
       ) : null}
       {!loading && !failed && visibleItems.length > 0 ? (
-        <ol className="space-y-3" aria-label="Wallet activity">
+        <ol className="space-y-3" aria-label={tr("Wallet activity")}>
           {visibleItems.map((item) => (
             <li
               key={item.identity}

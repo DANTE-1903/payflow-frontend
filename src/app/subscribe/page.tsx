@@ -5,7 +5,7 @@ import type { Translation } from "@/i18n/translate";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api, type ApiPlan } from "@/lib/api";
 import { chainPlans } from "@/lib/chain";
 import { config } from "@/lib/config";
@@ -157,6 +157,19 @@ function ComparisonTable({
 
 function SubscribeInner() {
   const { t: tr, formatPeriod, formatDate, formatWhen, translateMessage, formatTrialLength, trialBadge, formatTokenValue, formatUsdString, formatNumber, formatAmount, formatFeeBps } = useI18n();
+  const router = typeof useRouter === "function" ? useRouter() : null;
+  const prefetchPlan = useCallback(
+    (planId: number) => {
+      try {
+        if (router && typeof router.prefetch === "function") {
+          router.prefetch(`/subscribe/?plan=${planId}`);
+        }
+      } catch {
+        // ignore
+      }
+    },
+    [router],
+  );
   const searchParams = useSearchParams();
   const sortParam = (searchParams?.get("sort") as PlanSortOption) || "newest";
   // A shared link (?plan=12) shows that one plan instead of the catalogue.
@@ -764,6 +777,8 @@ function SubscribeInner() {
                   <Panel
                     key={plan.id}
                     title={plan.name ||tr("Plan #{0}", { "0": plan.id })}
+                    onMouseEnter={() => prefetchPlan(plan.id)}
+                    onFocusCapture={() => prefetchPlan(plan.id)}
                     actions={
                       <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-1 py-1 text-sm text-muted">
                         <input

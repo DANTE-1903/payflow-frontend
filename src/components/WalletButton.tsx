@@ -51,7 +51,7 @@ export function WalletButton() {
           disabled={funding}
           className="btn-primary"
           aria-label="Fund with Friendbot"
-          title="This account does not exist on testnet yet. Friendbot will create it and give it 10,000 test XLM."
+          title={tr("This account does not exist on testnet yet. Friendbot will create it and give it 10,000 test XLM.")}
         >
           {funding ? (
             "Funding…"

@@ -5,6 +5,8 @@ import HomePage from "@/app/page";
 import SubscribePage from "@/app/subscribe/page";
 import AccountPage from "@/app/account/page";
 import MerchantPage from "@/app/merchant/page";
+import StatusPage from "@/app/status/page";
+import NotFound from "@/app/not-found";
 import { I18nProvider, LOCALE_STORAGE_KEY } from "@/i18n/provider";
 import { LanguagePicker } from "@/i18n/LanguagePicker";
 const state = vi.hoisted(() => ({ address: null as string | null, networkMismatch: false, configured: true }));
@@ -75,5 +77,14 @@ describe("French on the four main pages", () => {
     await screen.findByText("English merchant name");
     await waitFor(() => expect(screen.getByText(/Lecture directe des offres dans le contrat/)).toBeTruthy());
     expect(screen.queryByText(/Reading plans directly from the contract/)).toBeNull();
+  });
+  it("translates the status page and not-found page in French", async () => {
+    render(<App><StatusPage /></App>);
+    await screen.findByText("État du service");
+    expect(screen.queryByText("Service status")).toBeNull();
+
+    render(<App><NotFound /></App>);
+    await screen.findByText("Page non trouvée");
+    expect(screen.queryByText("Page not found")).toBeNull();
   });
 });

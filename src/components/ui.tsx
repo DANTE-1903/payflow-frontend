@@ -15,6 +15,9 @@ export function Panel({
   subtitle,
   children,
   actions,
+  onMouseEnter,
+  onFocus,
+  onFocusCapture,
 }: {
   /** Optional DOM id, e.g. an anchor target for in-page links. */
   id?: string;
@@ -22,10 +25,19 @@ export function Panel({
   subtitle?: string;
   children: ReactNode;
   actions?: ReactNode;
+  onMouseEnter?: () => void;
+  onFocus?: () => void;
+  onFocusCapture?: () => void;
 }) {
   const { t: tr } = useI18n();
   return (
-    <section className="panel" id={id}>
+    <section
+      className="panel"
+      id={id}
+      onMouseEnter={onMouseEnter}
+      onFocus={onFocus}
+      onFocusCapture={onFocusCapture}
+    >
       {(title || actions) && (
         <header className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div>

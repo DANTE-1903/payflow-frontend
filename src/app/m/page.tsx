@@ -4,7 +4,7 @@ import { useI18n } from "@/i18n/provider";
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api, type ApiPlan } from "@/lib/api";
 import { chainPlansOf, merchantFromParam } from "@/lib/chain";
 import { config } from "@/lib/config";
@@ -44,6 +44,22 @@ function MerchantCatalogue() {
   const params = useSearchParams();
   const merchant = merchantFromParam(params.get("address"));
   const { address, networkMismatch, signXdr } = useWallet();
+  const router = typeof useRouter === "function" ? useRouter() : null;
+  const prefetchSubscribe = useCallback(
+    (planId?: number) => {
+      try {
+        if (router && typeof router.prefetch === "function") {
+          router.prefetch("/subscribe");
+          if (planId != null) {
+            router.prefetch(`/subscribe/?plan=${planId}`);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    },
+    [router],
+  );
   const [plans, setPlans] = useState<ApiPlan[] | null>(null);
   const [direct, setDirect] = useState(false);
   const [maxCharges, setMaxCharges] = useState<Record<number, string>>({});
@@ -154,7 +170,12 @@ function MerchantCatalogue() {
           {active.map((plan) => {
             const meta = metaFor(metas, plan.token);
             return (
-              <Panel key={plan.id} title={plan.name ||tr("Plan #{0}", { "0": plan.id })}>
+              <Panel
+                key={plan.id}
+                title={plan.name || tr("Plan #{0}", { "0": plan.id })}
+                onMouseEnter={() => prefetchSubscribe(plan.id)}
+                onFocusCapture={() => prefetchSubscribe(plan.id)}
+              >
                 <div className="space-y-3">
                   <div>
                     <div className="text-2xl font-semibold tabular-nums">
