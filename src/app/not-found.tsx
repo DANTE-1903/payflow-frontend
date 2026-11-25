@@ -17,7 +17,6 @@ export default function NotFound() {
         <p className="text-base text-muted">
           {tr("The page you are looking for does not exist or may have moved.")}
         </p>
-        </p>
         <Link
           href="/"
           className="btn-primary inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
